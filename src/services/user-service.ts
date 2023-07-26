@@ -30,8 +30,8 @@ async function loginUser({ email, password }: LoginUserParams) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) throw UnauthorizedError();
 
-    const token = jwt.sign({ id }, process.env.JWT_SECRET);
-    await sessionRepository.create({ userId: id, token })     //TODO make session expire
+    const token = jwt.sign({ id }, process.env.JWT_SECRET, {expiresIn: 86400} ); //expires in 24hrs
+    await sessionRepository.create({ userId: id, token })  
 
     return {
         user: {

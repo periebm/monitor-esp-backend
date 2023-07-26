@@ -1,3 +1,5 @@
+import { NextFunction, Request, Response } from 'express';
+
 export type ApplicationError = {
     name: string, message:string
 }
@@ -11,6 +13,12 @@ export type User = {
     updatedAt: Date
   }
 
-  
-  export type CreateUserParams = Pick<User, 'email' | 'password' |  "username">;
-  export type LoginUserParams = Pick<User, "email" | "password">;
+
+export type JWTPayload = {
+  userId: number;
+};
+
+export type AuthenticatedRequest = Request & JWTPayload;
+
+export type CreateUserParams = Pick<User, 'email' | 'password' |  "username">;
+export type LoginUserParams = Pick<User, "email" | "password">;

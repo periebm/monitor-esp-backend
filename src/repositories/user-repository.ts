@@ -13,6 +13,12 @@ async function findByEmail(email: string){
   })
 }
 
+async function findById(id: number){
+  return prisma.user.findUnique({
+    where: { id }
+  })
+}
+
 export const userRepository = {
-    create, findByEmail
+    create, findByEmail, findById
 }
