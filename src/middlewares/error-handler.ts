@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { ApplicationError } from "../protocols";
 
-export function handleApplicationErrors(err: ApplicationError | Error, _req: Request, res: Response, next: NextFunction) {
+export default function errorHandler(err: ApplicationError | Error, req: Request, res: Response, next: NextFunction) {
   console.log(err.name)
   
   if (err.name === "ConflictError") {
