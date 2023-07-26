@@ -5,7 +5,7 @@ import { ApplicationError } from "../protocols";
 export default function errorHandler(err: ApplicationError | Error, req: Request, res: Response, next: NextFunction) {
   console.log(err.name)
   
-  if (err.name === "ConflictError") {
+  if (err.name === "ConflictError" || err.name === "DuplicatedEmailError") {
     return res.status(httpStatus.CONFLICT).send({
       message: err.message,
     });

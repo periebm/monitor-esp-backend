@@ -11,4 +11,6 @@ export type User = {
     updatedAt: Date
   }
 
+  
   export type CreateUserParams = Pick<User, 'email' | 'password' |  "username">;
+  export type LoginUserParams = Pick<User, "email" | "password">;

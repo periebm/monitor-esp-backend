@@ -1,17 +1,50 @@
-import { CreateUserParams, User } from "../protocols";
+import { CreateUserParams, LoginUserParams, User } from "../protocols";
 import bcrypt from "bcrypt";
 import { userRepository } from "../repositories/user-repository";
-import { invalidDataError } from "../errors/invalid-data-error";
-import { notFoundError } from "../errors/not-found-error";
+import { duplicatedEmailError } from "../errors/duplicatedemail-error";
+import { UnauthorizedError } from "../errors/unauthorized-error";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { sessionRepository } from "../repositories/session-repository";
 
-async function createUser({email, username, password}: CreateUserParams): Promise<User> {
+dotenv.config();
 
-    //await validateUniqueEmail(email);
+async function createUser({ email, username, password }: CreateUserParams): Promise<User> {
+
+    await validateUniqueEmail(email);
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    return userRepository.create({email, username, password})
+    return userRepository.create({ email, username, password: hashedPassword })
 }
 
+async function validateUniqueEmail(email: string) {
+    const userEmail = await userRepository.findByEmail(email)
+    if (userEmail) throw duplicatedEmailError();
+}
+
+async function loginUser({ email, password }: LoginUserParams) {
+    const user = await userRepository.findByEmail(email);
+    if (!user) throw UnauthorizedError();
+    const id = user.id;
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) throw UnauthorizedError();
+
+    const token = jwt.sign({ id }, process.env.JWT_SECRET);
+    await sessionRepository.create({ userId: id, token })     //TODO make session expire
+
+    return {
+        user: {
+            id: user.id,
+            email: user.email,
+            username: user.username
+        },
+        token
+    };
+}
+
+
 export const userService = {
-    createUser
+    createUser,
+    loginUser
 }
